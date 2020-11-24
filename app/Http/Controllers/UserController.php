@@ -244,4 +244,47 @@ class UserController extends Controller
         $user->update();
         return redirect()->route('show-password')->with('success',__('updated-successfully'));
     }
+
+    public function profile() {
+        $user = Auth::user();
+        return view('profile.profile')->with(['user' => $user]);
+    }
+
+    public function updateProfile(Request  $request) {
+        $user = Auth::user();
+
+        $rules = [
+            'first_name' => 'string|required|max:20',
+            'mid_name' => 'string|required|max:20',
+            'last_name' => 'string|required|max:20',
+            'address' => 'nullable|max:191',
+            'email' => 'email|required|max:191|unique:users,email,' . $user->id,
+        ];
+
+        $messages = [
+        ];
+
+        $this->validate($request, $rules, $messages);
+
+        $user->first_name = $request->first_name;
+        $user->mid_name = $request->mid_name;
+        $user->last_name = $request->last_name;
+        $user->phone = $request->phone;
+        $user->address = $request->address;
+        $user->email = $request->email;
+        $user->update();
+
+
+        if ($request->has("image")) {
+            if ($request->image) {
+                $user->clearMediaCollection("profile");
+                $user->addMedia($request->image)
+                    ->preservingOriginal()
+                    ->toMediaCollection('profile');
+            }
+        }
+
+        return redirect()->route('profile')->with('success','تم تعديل الحساب بنجاح');
+
+    }
 }

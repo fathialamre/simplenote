@@ -20,8 +20,13 @@ class CreateAdsTable extends Migration
             $table->foreign('department_id')->references('id')->on('departments')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->string('company', 100);
-            $table->string('city', 100);
+            $table->unsignedBigInteger('city_id');
+
+            $table->foreign('city_id')->references('id')->on('cities')
+                ->onUpdate('cascade')->onDelete('cascade');
+
             $table->string('address', 300);
+            $table->integer('number_of_seen');
             $table->string('activity', 50);
             $table->string('phone', 20);
             $table->string('des');

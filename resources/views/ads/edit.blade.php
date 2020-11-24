@@ -68,7 +68,7 @@
 
             <div class="form-group col-md-6 {{ $errors->has('city') ? "has-error": ""}}">
                 {!! Form::label('city', 'المدينة') !!}
-                {!! Form::text('city',$ad->city, ['class' => 'form-control', 'placeholder' => 'المدينة' ]) !!}
+                {{ Form::select('city_id', $cities, $ad->city_id, ['class' => 'form-control']) }}
 
                 @if ($errors->has('city'))
                     <span class="help-block">

@@ -12,8 +12,9 @@
         <tr>
             <th scope="col">#</th>
             <th scope="col">اسم الشركة</th>
-            <th scope="col">العنوان</th>
             <th scope="col">المدينة</th>
+            <th scope="col">القسم</th>
+            <th scope="col">العنوان</th>
             <th scope="col">رقم الهاتف</th>
             <th scope="col">السعر المطلوب</th>
             <th scope="col">الصورة</th>
@@ -25,11 +26,12 @@
             <tr>
                 <th scope="row">{{$row->id+1}}</th>
                 <td>{{$row->company}}</td>
-                <td>{{$row->city}}</td>
+                <td>{{$row->city->name}}</td>
+                <td>{{$row->department->name}}</td>
                 <td>{{$row->address}}</td>
                 <td>{{$row->phone}}</td>
                 <td>{{$row->price}} - {{$row->currency}}</td>
-                <td><img src="{{$row->getFirstMediaUrl("default")}}" height="50"></td>
+                <td><img src="{{$row->getFirstMediaUrl('ads')}}" height="50"></td>
                 <td>
                     <a href="{{route('ads.edit', $row->id)}}" class="btn btn-primary btn-action"><i class="fa fa-edit"></i></a>
                     <a href="{{route('ads.destroy', $row->id)}}" class="btn btn-danger btn-action"><i class="fa fa-trash"></i></a>

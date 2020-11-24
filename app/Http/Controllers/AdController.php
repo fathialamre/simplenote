@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ad;
+use App\Models\City;
 use App\Models\Department;
 use Faker\Provider\Image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
@@ -17,7 +19,7 @@ class AdController extends Controller
      */
     public function index()
     {
-        $ads = Ad::all();
+        $ads = Ad::where('user_id', Auth::id())->get();
         return view('ads.index')->with(['data' => $ads]);
     }
 
@@ -29,7 +31,8 @@ class AdController extends Controller
     public function create()
     {
         $departments = Department::all()->pluck('name', 'id');
-        return view('ads.create')->with(['departments' => $departments]);
+        $cities = City::all()->pluck('name', 'id');
+        return view('ads.create')->with(['departments' => $departments, 'cities' => $cities]);
     }
 
     /**
@@ -49,7 +52,7 @@ class AdController extends Controller
             'des' => 'required|string|max:400',
             'price' => 'required',
             'currency' => 'required',
-            'city' => 'required',
+            'city_id' => 'required',
         ];
         $messages = [
         ];
@@ -65,7 +68,7 @@ class AdController extends Controller
             $ad->des = $request->des;
             $ad->price = $request->price;
             $ad->currency = $request->currency;
-            $ad->city = $request->city;
+            $ad->city_id = $request->city_id;
             $ad->image_url = '';
             $ad->user_id = auth()->id();
             $ad->save();
@@ -75,14 +78,14 @@ class AdController extends Controller
                     $ad->clearMediaCollection("image");
                     $ad->addMedia($request->image)
                         ->preservingOriginal()
-                        ->toMediaCollection();;
+                        ->toMediaCollection('ads');
                 }
             }
 
         } catch (\Exception $e) {
             return $e;
         }
-        return redirect()->route('ads.index')->with('success','تمت عملية اضافة الاعلان بنجاح');
+        return redirect()->route('ads.index')->with('success', 'تمت عملية اضافة الاعلان بنجاح');
     }
 
     /**
@@ -91,9 +94,13 @@ class AdController extends Controller
      * @param \App\Ad $ad
      * @return \Illuminate\Http\Response
      */
-    public function show(Ad $ad)
+    public function show($id)
     {
+        $ad = Ad::find($id);
 
+        $ad->number_of_seen += 1;
+        $ad->update();
+        return view('ads.show')->with(['ad' => $ad]);
     }
 
     /**
@@ -105,9 +112,12 @@ class AdController extends Controller
     public function edit($id)
     {
         $departments = Department::all()->pluck('name', 'id');
+        $cities = City::all()->pluck('name', 'id');
+
         $ad = Ad::find($id);
         $data = [
             'departments' => $departments,
+            'cities' => $cities,
             'ad' => $ad,
         ];
         return view('ads.edit')->with($data);
@@ -132,7 +142,7 @@ class AdController extends Controller
             'des' => 'required|string|max:400',
             'price' => 'required',
             'currency' => 'required',
-            'city' => 'required',
+            'city_id' => 'required',
         ];
         $messages = [
         ];
@@ -148,7 +158,7 @@ class AdController extends Controller
             $ad->des = $request->des;
             $ad->price = $request->price;
             $ad->currency = $request->currency;
-            $ad->city = $request->city;
+            $ad->city_id = $request->city_id;
             $ad->image_url = '';
             $ad->user_id = auth()->id();
             $ad->save();
@@ -158,7 +168,7 @@ class AdController extends Controller
                     $ad->clearMediaCollection("image");
                     $ad->addMedia($request->image)
                         ->preservingOriginal()
-                        ->toMediaCollection();;
+                        ->toMediaCollection('ads');
                 }
             }
 
@@ -166,7 +176,7 @@ class AdController extends Controller
             return $e;
         }
 
-        return redirect()->route('ads.index')->with('success','تمت عملية تعديل الاعلان بنجاح');
+        return redirect()->route('ads.index')->with('success', 'تمت عملية تعديل الاعلان بنجاح');
     }
 
     /**
@@ -178,14 +188,13 @@ class AdController extends Controller
     public function destroy($id)
     {
         return "a";
-        try{
-            $ad =  Ad::findOrfail($id);
+        try {
+            $ad = Ad::findOrfail($id);
             $ad->delete();
-            return redirect()->route('ads.index')->with('success','تمت عملية حذف الاعلان بنجاح');
+            return redirect()->route('ads.index')->with('success', 'تمت عملية حذف الاعلان بنجاح');
 
-        }
-        catch (\Exception $e){
-            return redirect()->route('ads')->with('error','حدث خطأ ما');
+        } catch (\Exception $e) {
+            return redirect()->route('ads')->with('error', 'حدث خطأ ما');
         }
     }
 }

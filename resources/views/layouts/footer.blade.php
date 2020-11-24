@@ -33,10 +33,20 @@
 </footer>
 
 <script src="{{asset('website/js/plugins.js')}}"></script>
+<script src="{{ asset('website/js/select2/js/select2.min.js') }}" type="text/javascript"></script>
+
 <script>
     $(window).on("load", function() {
         $('body').addClass('loaded');
     });
+
+    //Select2
+    $(".select2").select2({
+        width: '100%'
+    });
+
+    //Select2 tags
+    $(".tags").select2({tags: true, width: '100%'});
 </script>
 </body>
 </html>

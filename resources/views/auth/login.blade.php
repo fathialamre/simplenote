@@ -38,7 +38,7 @@
 
                             <input name="login" id="login" class="btn btn-block login-btn" type="submit" value="دخول">
                         </form>
-                        <p class="login-wrapper-footer-text">لا تملك حساباً? <a href="#!" class="text-reset">سجل
+                        <p class="login-wrapper-footer-text">لا تملك حساباً? <a href="{{route('registershow')}}" class="text-reset">سجل
                                 الآن</a></p>
                     </div>
                 </div>
