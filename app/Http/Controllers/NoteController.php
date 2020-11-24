@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\NoteResource;
 use App\Models\Note;
 use http\Exception;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class NoteController extends Controller
     public function index()
     {
         $notes = Note::all();
-        return response()->json(['data' => $notes], 200);
+        return response()->json(NoteResource::collection($notes), 200);
     }
 
     /**
@@ -29,9 +30,9 @@ class NoteController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:100',
-            'body' => 'required|string',
-            'completed' => 'required|boolean',
+            // 'title' => 'required|string|max:100',
+            // 'body' => 'required|string',
+            // 'picture' => '',
         ]);
 
         if ($validator->fails()) {
@@ -39,13 +40,21 @@ class NoteController extends Controller
         }
         try {
             $note = new Note();
-            $note->title = $request->title;
-            $note->body = $request->body;
-            $note->completed = $request->completed;
+            $note->title = 'Nooo';
+            $note->body = 'BOOOODY';
+            $note->completed = true;
             $note->save();
+
+            if ($request->has("picture")) {
+                if ($request->picture) {
+                    $note->clearMediaCollection("picture");
+                    $note->addMediaFromBase64($request->picture)->toMediaCollection("picture");
+                }
+            }
+
             return response()->json(['data' => $note], 201);
-        } catch (Exception $error) {
-            return response()->json(['error' => 'Bad Request'], 400);
+        } catch (\Exception $error) {
+            return response()->json($error, 400);
         }
     }
 
@@ -58,9 +67,8 @@ class NoteController extends Controller
     public function show($id)
     {
         $note = Note::find($id);
-
         if ($note) {
-            return response()->json(['data' => $note], 200);
+            return response()->json(new NoteResource($note), 200);
         }
         return response()->json(['data' => 'not found note'], 400);
     }
@@ -83,17 +91,19 @@ class NoteController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 400);
         }
-        try {
-            $note = Note::find($id);
-            $note->title = $request->title;
-            $note->body = $request->body;
-            $note->completed = $request->completed;
-            $note->save();
-            return response()->json(['data' => $note], 200);
-        } catch (Exception $error) {
-            return response()->json(['error' => 'Bad Request'], 400);
+        $note = Note::find($id);
+        if ($note) {
+            try {
+                $note->title = $request->title;
+                $note->body = $request->body;
+                $note->completed = $request->completed;
+                $note->save();
+                return response()->json(['data' => $note], 200);
+            } catch (Exception $error) {
+                return response()->json(['error' => 'Bad Request'], 400);
+            }
         }
-
+        return response()->json(['error' => 'Not found note'], 400);
     }
 
     /**

@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,7 +15,18 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
-    return view('welcome');
+Route::get('login', [AuthController::class, 'index']);
+Route::post('login', [AuthController::class , 'authenticate'])->name('login');
+Route::post('logout', 'AuthController@logout')->name('user-logout');
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/', [HomeController::class, 'index']);
+    Route::get('/home',  [HomeController::class, 'index'])->name('home');
+    Route::resource('ads', AdController::class);
 });
+
+Route::get('/flowers', function (){
+    return view('under-work');
+})->name('flowers');
+Route::get('/seen', function (){
+    return view('under-work');
+})->name('seen');

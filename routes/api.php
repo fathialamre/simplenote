@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NoteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -14,14 +15,14 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-//
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
 
+Route::post('login', [AuthController::class, 'login']);
+Route::post('register', [AuthController::class, 'register']);
 
-Route::get('/', [NoteController::class, 'index']);
-Route::post('/', [NoteController::class, 'store']);
-Route::put('/{id}', [NoteController::class, 'update']);
-Route::get('/{id}', [NoteController::class, 'show']);
-Route::delete('/{id}', [NoteController::class, 'destroy']);
+Route::prefix('notes')->group(function() {
+    Route::get('/', [NoteController::class, 'index']);
+    Route::post('/add', [NoteController::class, 'store']);
+    Route::put('/update/{id}', [NoteController::class, 'update']);
+    Route::get('/show/{id}', [NoteController::class, 'show']);
+    Route::delete('/delete/{id}', [NoteController::class, 'destroy']);
+});
